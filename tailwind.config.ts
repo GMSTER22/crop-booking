@@ -24,7 +24,9 @@ const config: Config = {
 
       'black': '#000',
 
-      'white': '#fff'
+      'white': '#fff',
+
+      'transparent': 'rgba(255,255,255,0)',
       
     },
 
