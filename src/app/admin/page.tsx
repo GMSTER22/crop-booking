@@ -4,11 +4,11 @@ export const metadata: Metadata = {
   title: 'Admin',
 };
 
-export default function Page() {
+export default async function Page() {
 
   return (
 
-    <h1>Admin</h1>
+    <h1 className="text-center">Admin</h1>
 
   )
 
