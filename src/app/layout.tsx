@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
 import { Inter, Poppins, Montserrat, Roboto } from 'next/font/google';
 import Image from 'next/image';
-import Link from 'next/link';
 import logoImage from '../../public/logo.svg';
 import './globals.css';
 import SessionProvider from './session/SessionProvider';
@@ -57,20 +56,6 @@ export default async function RootLayout({
             </div>
 
             <Navigation />
-
-            {/* <nav className="max-w-fit mx-auto my-5 flex justify-center flex-wrap gap-x-10 gax-y-5">
-
-              <Link className="my-2 border-b-transparent hover:text-burnt-sienna border-b-2 hover:border-b-burnt-sienna transition-opacity duration-300" href='/'>Home</Link>
-
-              <Link className="my-2 border-b-transparent hover:text-burnt-sienna border-b-2 hover:border-b-burnt-sienna transition-opacity duration-300" href='/booking'>Book Crop Session</Link>
-
-              <Link className="my-2 border-b-transparent hover:text-burnt-sienna border-b-2 hover:border-b-burnt-sienna transition-opacity duration-300" href='/pricing'>Pricing</Link>
-
-              <Link className="my-2 border-b-transparent hover:text-burnt-sienna border-b-2 hover:border-b-burnt-sienna transition-opacity duration-300" href='/admin'>Admin</Link>
-
-              <Link className="my-2 border-b-transparent hover:text-burnt-sienna border-b-2 hover:border-b-burnt-sienna transition-opacity duration-300" href='/login'>Login</Link>
-
-            </nav> */}
 
           </header>
 

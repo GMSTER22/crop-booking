@@ -38,7 +38,7 @@ const authOptions = {
       return true;
     },
 
-    async session({ session }) {
+    async session( { session } ) {
 
       const { id, is_admin } = await fetchUserByEmail( session.user.email );
 
