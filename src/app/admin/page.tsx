@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from "react";
-import Button from "../ui/Button";
+import Button, { SmallButton } from "../ui/Button";
 import { formatDate } from "../lib/utils";
 import { PlusCircleIcon, MinusCircleIcon } from "@heroicons/react/16/solid";
 
@@ -11,25 +11,27 @@ export default function Page() {
 
   const [ bookedDates, setBoookedDates ] = useState( [] );
 
+  const [ bookedDatesFilterLimit, setBookedDatesFilterLimit ] = useState( 3 );
+
+  const fetchBookings = async () => {
+
+    const response = await fetch( 'api/bookings' );
+
+    const bookings = await response.json();
+
+    console.log( bookings, 'BOOKINGS' );
+
+    setBoookedDates( bookings );
+
+  }
+
   useEffect( () => {
-
-    const fetchBookings = async () => {
-
-      const response = await fetch( 'api/bookings' );
-
-      const bookings = await response.json();
-
-      console.log( bookings, 'BOOKINGS' );
-
-      setBoookedDates( bookings );
-  
-    }
 
     fetchBookings();
 
-  }, [] )
+  }, [] );
 
-  const decreaseDateInputs = () => setDates( previousValue => previousValue - 1 );
+  const decreaseDateInputs = () => setDates( previousValue => previousValue > 1 ?  previousValue - 1 : 1 );
 
   const increaseDateInputs = () => setDates( previousValue => previousValue + 1 );
 
@@ -56,6 +58,84 @@ export default function Page() {
 
     }
 
+    // const isIdenticalDate = bookedDates.filter( ( { date } ) => {
+
+    //   const currentIterationDate = new Date( date );
+
+    //   console.log(date, currentIterationDate)
+
+    //   console.log( selectedYear, currentIterationDate.getFullYear(), selectedYear === currentIterationDate.getFullYear() );
+
+    //   console.log( selectedMonth, currentIterationDate.getMonth() + 1, selectedMonth === currentIterationDate.getMonth() + 1 );
+
+    //   console.log( selectedDay, currentIterationDate.getDate(), selectedDay === currentIterationDate.getDate() );
+
+    //   return (
+        
+    //     selectedYear === currentIterationDate.getFullYear()
+        
+    //     && 
+
+    //     selectedMonth === currentIterationDate.getMonth() + 1
+
+    //     &&
+
+    //     selectedDay === currentIterationDate.getDate()
+        
+    //   )
+
+    // } );
+
+    // console.log( isIdenticalDate, 'id datesss' );
+
+    // console.log( selectedDate );
+
+  }
+
+  function onShowMoreDatesHandler() {
+
+    const remainingDatesShowed = bookedDates.length - bookedDatesFilterLimit;
+
+    if ( remainingDatesShowed > 1 ) setBookedDatesFilterLimit( previousValue => previousValue + 1 );
+
+    else setBookedDatesFilterLimit( bookedDates.length );
+
+  }
+
+  async function deleteCropDate( id : number ) {
+
+    const options = {
+
+      method: 'DELETE',
+
+      headers: { 'Content-Type': 'application/json' },
+
+      body: JSON.stringify( { id } )
+
+    }
+
+    try {
+      
+      const response = await fetch( 'api/admin', options );
+
+      if ( response.ok ) {
+
+        const data = await response.text();
+
+        console.log( response, 'check response here' );
+
+        console.log( data, 'check data here' );
+
+        fetchBookings();
+
+      }
+
+    } catch (error) {
+      
+      console.log( 'Failed to fetch data' );
+
+    }
+
   }
 
   async function onFormSubmit( event: React.FormEvent<HTMLFormElement> ) {
@@ -74,8 +154,6 @@ export default function Page() {
 
     }
 
-    // console.log(data, 'dataaaa');
-
     const options = {
 
       method: 'POST',
@@ -90,9 +168,19 @@ export default function Page() {
       
       const response = await fetch( 'api/admin', options );
 
-      const data = await response.json();
+      if ( response.ok ) {
 
-      console.log( data, 'check data here' )
+        const data = await response.text();
+
+        console.log( data, 'check data here' );
+
+        console.log( event.target, 'target' );
+
+        event.target?.reset();
+
+        fetchBookings();
+
+      }
 
     } catch (error) {
       
@@ -102,19 +190,91 @@ export default function Page() {
 
   return (
 
-    <div className="px-5 py-10">
+    <div className="px-2 py-10 sm:px-5">
 
-      <h1 className="text-center">Admin</h1>
+      <h1 className="mb-20 text-center">Admin</h1>
 
-      <div>
+      <div className="md:flex">
 
-        <div>
+        {/* Dates Available */}
+        <div className="mb-16 w-fit mx-auto md:w-auto md:basis-1/2">
+
+          <div className="w-fit mx-auto grid grid-cols-[100px_130px_80px] justify-items-center gap-x-3 py-2 text-[#6b7280] shadow-sm shadow-black">
+
+            <div>Dates</div>
+
+            <div>Seats Remaining</div>
+
+            <div></div>
+
+          </div>
+
+          {
+
+            bookedDates.length ?
+
+              <ul>
+
+                {
+
+                  bookedDates
+                  
+                    .filter( ( _, index ) => index < bookedDatesFilterLimit )
+                      
+                    .map( ( { id, date, seats_available, seats_booked } ) => (
+
+                      <li key={id} className="w-fit mx-auto grid grid-cols-[100px_130px_80px] justify-items-center items-center py-2 gap-x-3 shadow-sm shadow-black">
+
+                        <div>{ formatDate( new Date( date ) ) }</div>
+
+                        <div>{ `${seats_available - seats_booked}` }</div>
+
+                        <div className="px-4">
+
+                          <button className="px-2 py-1 text-xs text-white rounded-md bg-[red]" type="button" aria-label="delete crop date" onClick={() => deleteCropDate( id )}>
+
+                            Delete
+
+                          </button>
+
+                        </div>
+
+                      </li>
+
+                    ) )
+
+                }
+
+              </ul>
+
+              :
+
+              <p className="py-3 text-sm text-center text-[red]">No Dates Available at the moment</p>
+
+          }
+
+          <div className="my-3 text-center">
+
+            {
+
+              bookedDatesFilterLimit < bookedDates.length ?
+
+                <SmallButton type="button" cta="Show More Dates" onClickHandler={onShowMoreDatesHandler}></SmallButton>
+
+                :
+
+                ''
+
+            }
+
+          </div>
 
         </div>
 
-        <div>
+        {/* Form */}
+        <div className="basis-1/2">
 
-          <form className="max-w-96 mx-auto p-5 shadow-xl shadow-burnt-sienna rounded-md sm:p-8" onSubmit={onFormSubmit}>
+          <form className="p-5 shadow-xl shadow-black rounded-md sm:p-8" onSubmit={onFormSubmit}>
 
             <div className="mb-5">
 
@@ -126,13 +286,13 @@ export default function Page() {
 
                   <button className="mr-3" type="button" aria-label="decrease dates" onClick={decreaseDateInputs}>
 
-                    <MinusCircleIcon className="h-5 w-5 text-[red] pointer-events-none" />
+                    <MinusCircleIcon className="h-6 w-6 text-[red] pointer-events-none" />
 
                   </button>
 
                   <button type="button" aria-label="increase dates" onClick={increaseDateInputs}>
 
-                    <PlusCircleIcon className="h-5 w-5 text-[green] pointer-events-none" />
+                    <PlusCircleIcon className="h-6 w-6 text-[green] pointer-events-none" />
 
                   </button>
 

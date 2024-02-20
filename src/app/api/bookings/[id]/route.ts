@@ -1,0 +1,47 @@
+
+import { fetchUserBookings, deleteParticipants } from "@/app/lib/data";
+
+export async function GET( request: Request, { params }: { params: { id: number } } ) {
+
+  // const res = await request.json();
+
+  // const { searchParams } = new URL( request.url );
+
+  const id = params.id;
+
+  console.log( 'response PARAMS', params.id );
+
+  const response = await fetchUserBookings( id as unknown as number );
+
+  const options = { 
+
+    status: 200,
+
+    statusText: 'success'
+
+  }
+
+  return new Response( JSON.stringify( response ), options );
+
+}
+
+export async function DELETE( request: Request, { params }: { params: { id: number } } ) {
+
+  const options = { 
+
+    status: 200,
+
+    statusText: 'deleted'
+
+  }
+
+  const id = params.id;
+
+  const response = await deleteParticipants( id );
+
+  console.log(response, 'participants deletion')
+
+  return new Response( 'Deleted!', options );
+
+}
+

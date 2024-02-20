@@ -18,6 +18,8 @@ export default function Navigation() {
 
       <Link className="my-2 border-b-transparent hover:text-burnt-sienna border-b-2 hover:border-b-burnt-sienna transition-opacity duration-300" href='/booking'>Book Crop Session</Link>
 
+      <Link className="my-2 border-b-transparent hover:text-burnt-sienna border-b-2 hover:border-b-burnt-sienna transition-opacity duration-300" href='/my-bookings'>My Bookings</Link>
+
       <Link className="my-2 border-b-transparent hover:text-burnt-sienna border-b-2 hover:border-b-burnt-sienna transition-opacity duration-300" href='/pricing'>Pricing</Link>
 
       <Link className="my-2 border-b-transparent hover:text-burnt-sienna border-b-2 hover:border-b-burnt-sienna transition-opacity duration-300" href='/admin'>Admin</Link>

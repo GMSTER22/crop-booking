@@ -32,3 +32,41 @@ export default function Button( {
   )
 
 }
+
+export function SmallButton( {
+  
+  type,
+
+  cta,
+
+  onClickHandler
+
+} : { 
+  
+  type: Button, 
+  
+  cta: string,
+
+  onClickHandler: () => void
+
+} ) {
+
+  return (
+
+    <button 
+    
+      type={type ?? 'button'} 
+      
+      className="px-5 py-2 text-sm font-bold text-black bg-burnt-sienna rounded-3xl hover:text-burnt-sienna hover:bg-black transition-colors duration-300"
+
+      onClick={onClickHandler}
+      
+    >
+
+      {cta}
+
+    </button>
+
+  )
+
+}

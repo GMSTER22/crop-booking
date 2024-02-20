@@ -75,7 +75,31 @@ export async function fetchBookings() {
 
   try {
 
-    const { rows } = await sql`SELECT id, date, seats_available, (SELECT COUNT(*)::INT as seats_booked FROM swsParticipants WHERE booking_id = swsBookings.id) FROM swsBookings ORDER BY swsBookings.date ASC;`;
+    const { rows } = await sql`SELECT id, date::TIMESTAMP WITHOUT TIME ZONE, seats_available, (SELECT COUNT(*)::INT as seats_booked FROM swsParticipants WHERE booking_id = swsBookings.id) FROM swsBookings ORDER BY swsBookings.date ASC;`;
+
+    // const { rows } = await sql`SELECT swsBookings.* FROM swsBookings ORDER BY swsBookings.date ASC`;
+
+    // console.log( rows, 'ROWS FIELDS' );
+
+    return rows;
+
+  } catch ( error ) {
+
+    console.error( 'Database Error:', error );
+    throw new Error( 'Failed to fetch bookings data.' );
+
+  }
+
+}
+
+export async function fetchUserBookings( userId : number ) {
+  // Add noStore() here to prevent the response from being cached.
+  // This is equivalent to in fetch(..., {cache: 'no-store'}).
+  noStore();
+
+  try {
+
+    const { rows } = await sql`SELECT swsParticipants.id, swsParticipants.name, swsParticipants.email, swsBookings.date FROM swsParticipants LEFT JOIN swsBookings ON swsParticipants.booking_id = swsBookings.id WHERE swsParticipants.user_id = ${userId}`;
 
     // const { rows } = await sql`SELECT swsBookings.* FROM swsBookings ORDER BY swsBookings.date ASC`;
 
@@ -98,11 +122,29 @@ export async function createBookings( dates : Date[], seats: number ) {
     
     const values = dates.map( date => [ new Date(date), seats ] );
 
-    values.forEach( async ( [ date, seats ] ) => await sql`INSERT INTO swsBookings (date, seats_available) VALUES (${date as number}, ${seats as number})` );
+    console.log(values, 'CHECK VALUES');
+
+    values.forEach( async ( [ date, seats ] ) => await sql`INSERT INTO swsBookings (date, seats_available) VALUES (${date as number}::timestamp AT TIME ZONE 'America/New_York', ${seats as number})` );
 
   } catch ( error ) {
     
     console.log( 'Failed to insert booked dates' );
+
+  }
+
+}
+
+export async function deleteBookings( id : number ) {
+  
+  try {
+    
+    const deleteBookingOutcome = await sql`DELETE FROM swsBookings WHERE id = ${id};`;
+
+    console.log( deleteBookingOutcome, 'DELETE OUTCOME' );
+
+  } catch ( error ) {
+    
+    console.log( 'Failed to delete booked date ' + id );
 
   }
 
@@ -119,6 +161,22 @@ export async function createParticipants( participants : [] ) {
   } catch ( error ) {
     
     console.log( 'Failed to insert participants' );
+
+  }
+
+}
+
+export async function deleteParticipants( id : number ) {
+  
+  try {
+    
+    const deleteParticipantOutcome = await sql`DELETE FROM swsParticipants WHERE id = ${id};`;
+
+    console.log( deleteParticipantOutcome, 'DELETE Participant OUtcome' );
+
+  } catch ( error ) {
+    
+    console.log( 'Failed to delete participant booking ' + id );
 
   }
 
