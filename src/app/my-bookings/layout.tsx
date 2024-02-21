@@ -4,7 +4,7 @@ export const metadata: Metadata = {
   title: 'My Bookings',
 };
 
-export default function MyBookingsLayout({
+export default async function MyBookingsLayout({
   children,
 }: {
   children: React.ReactNode;

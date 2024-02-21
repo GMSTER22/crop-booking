@@ -1,5 +1,5 @@
 
-import { fetchUserBookings, deleteParticipants } from "@/app/lib/data";
+import { fetchUserBookings, updateParticipants, deleteParticipants } from "@/app/lib/data";
 
 export async function GET( request: Request, { params }: { params: { id: number } } ) {
 
@@ -23,6 +23,26 @@ export async function GET( request: Request, { params }: { params: { id: number 
 
   return new Response( JSON.stringify( response ), options );
 
+}
+
+export async function POST( request: Request ) {
+
+  const participantData = await request.json();
+
+  console.log( participantData, 'body check' );
+
+  const res = await updateParticipants( participantData );
+
+  const options = {
+
+    status: 200,
+
+    statusText: 'updated'
+
+  }
+ 
+  return Response.json( 'Updated', options );
+  
 }
 
 export async function DELETE( request: Request, { params }: { params: { id: number } } ) {

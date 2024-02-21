@@ -1,11 +1,11 @@
 'use client';
 
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, Suspense } from "react";
 import { formatDate } from "../lib/utils";
-import { MinusCircleIcon, PlusCircleIcon } from "@heroicons/react/16/solid";
-import Button, { SmallButton } from "../ui/Button";
+import Button from "../ui/Button";
 import { getSession, useSession } from "next-auth/react";
-import { Booking } from "../lib/definition";
+import MyBookingSkeleton from "../ui/MyBookingSkeleton";
+import { useRouter } from "next/navigation";
 
 export type Participant = {
   id: number;
@@ -14,62 +14,81 @@ export type Participant = {
   date: Date;
 }
 
+type FormValues = {
+  id: number | null;
+  name: string | null;
+  email: string | null;
+}
+
+type Acc = {
+
+  [date: string]: Participant[];
+
+}
 
 export default function Page() {
 
+  const { status } = useSession();
+
+  const router = useRouter();
+
   const [ participants, setParticipants ] = useState( {} );
 
-  const formInputInitialValues = {
+  const [ isParticipantsLoading, setIsParticipantsLoading ] = useState( true );
 
-    id: undefined,
+  const [ sessionId, setSessionId ] = useState( null );
 
-    name: undefined,
+  const formInputInitialValues : FormValues = {
 
-    email: undefined
+    id: null,
+
+    name: null,
+
+    email: null
 
   }
 
   const [ formInputValues, setFormInputValues ] = useState( formInputInitialValues );
 
-  const formRef = useRef<HTMLFormElement>( null );
-
   const fetchUserBookings = async () => {
 
     const session = await getSession();
 
-    console.log( session, 'SESSION HERE' );
+    try {
 
-    const response = await fetch( `api/bookings/${session?.user?.id}` );
+      const response = await fetch( `api/bookings/${session?.user?.id}` );
 
-    const bookings = await response.json();
+      const bookings = await response.json();
 
-    type Acc = {
-      [date: string]: Participant[];
+      const bookingsPerDate = bookings.reduce( ( acc: Acc, currentParticipantBooking: Participant ) => {
+
+        const formattedDate : string = formatDate( new Date( currentParticipantBooking?.date ) );
+
+        if ( acc.hasOwnProperty( formattedDate ) ) acc[ formattedDate ].push( currentParticipantBooking )
+
+        else acc[ formattedDate ] = [ currentParticipantBooking ];
+
+        return acc;
+
+      }, {} );
+
+      // console.log( bookingsPerDate );
+
+      setIsParticipantsLoading( false );
+
+      setParticipants( bookingsPerDate );
+
+    } catch( error ) {
+
+      console.log( error );
+
     }
-
-    const bookingsPerDate = bookings.reduce( ( acc: Object, currentParticipantBooking: Participant ) => {
-
-      const formattedDate = formatDate( new Date( currentParticipantBooking?.date ) );
-
-      // console.log( formattedDate, typeof formattedDate );
-
-      // console.log( acc );
-
-      if ( acc.hasOwnProperty( formattedDate ) ) acc[ formattedDate as keyof Acc ].push( currentParticipantBooking );
-
-      else acc[ formattedDate as keyof Acc ] = [ currentParticipantBooking ];
-
-      return acc;
-
-    }, {} );
-
-    console.log( bookingsPerDate );
-
-    setParticipants( bookingsPerDate );
 
   }
 
   useEffect( () => {
+
+    if ( status === 'unauthenticated' ) return router.push( '/api/auth/signin' );
 
     fetchUserBookings();
 
@@ -87,7 +106,7 @@ export default function Page() {
 
     const formData = new FormData( event.target as HTMLFormElement );
 
-    const data = {
+    const participantData = {
 
       id: formData.get( 'id' ),
 
@@ -97,7 +116,31 @@ export default function Page() {
 
     }
 
-    console.log( data );
+    const options = {
+
+      method: 'POST',
+
+      headers: { 'Content-Type': 'application/json' },
+
+      body: JSON.stringify( participantData )
+
+    }
+
+    const response = await fetch( `api/bookings/${sessionId}`, options );
+
+    if ( response.ok ) {
+
+      const data = await response.text();
+
+      const target = event.target as HTMLFormElement;
+
+      setFormInputValues( { id: null, name: null, email: null } );
+
+      target.reset();
+
+      fetchUserBookings();
+
+    }
 
   } 
 
@@ -121,9 +164,9 @@ export default function Page() {
 
         const data = await response.text();
 
-        console.log( response, 'check response here' );
+        // console.log( response, 'check response here' );
 
-        console.log( data, 'check data here' );
+        // console.log( data, 'check data here' );
 
         fetchUserBookings();
 
@@ -139,7 +182,7 @@ export default function Page() {
 
   return (
 
-    <div className="px-5 py-10">
+    <div className="px-5 py-10 min-h-[600px]">
 
       <h1 className="mb-20 text-center">My Bookings</h1>
 
@@ -148,13 +191,19 @@ export default function Page() {
         <div className="mb-10 sm:basis-1/2 sm:mb-0 md:basis-1/3" >
 
           {/* Form */}
-          <form ref={formRef} className="p-5 shadow-xl shadow-black rounded-md sm:p-6">
+          <form
+          
+            className="p-5 shadow-xl shadow-black rounded-md sm:p-6"
+            
+            onSubmit={onFormSubmit}
+            
+          >
 
-            <div className="">
+            <div className="hidden">
 
               <label htmlFor="id">Id</label>
 
-              <input className="w-full p-2 focus:ring-burnt-sienna focus:border-burnt-sienna" type="number" name="id" id="id" value={formInputValues.id} />
+              <input className="w-full p-2 focus:ring-burnt-sienna focus:border-burnt-sienna" type="number" name="id" id="id" defaultValue={formInputValues.id as number} />
 
             </div>
 
@@ -162,7 +211,7 @@ export default function Page() {
 
               <label htmlFor="name">Name</label>
 
-              <input className="w-full p-2 focus:ring-burnt-sienna focus:border-burnt-sienna" type="text" name="name" id="name" value={formInputValues.name} required />
+              <input className="w-full p-2 focus:ring-burnt-sienna focus:border-burnt-sienna" type="text" name="name" id="name" defaultValue={formInputValues.name as string} required />
 
             </div>
 
@@ -170,7 +219,7 @@ export default function Page() {
 
               <label htmlFor="email">Email</label>
 
-              <input className="w-full p-2 focus:ring-burnt-sienna focus:border-burnt-sienna" type="email" name="email" id="email" value={formInputValues.email} required />
+              <input className="w-full p-2 focus:ring-burnt-sienna focus:border-burnt-sienna" type="email" name="email" id="email" defaultValue={formInputValues.email as string} required />
 
             </div>
 
@@ -185,59 +234,74 @@ export default function Page() {
         </div>
 
         {/* Participants */}
-        <div className="sm:basis-1/2 md:basis-2/3">
 
-          {
+        {
 
-            Object.keys( participants ).map( ( date ) => (
+          isParticipantsLoading ?
 
-              <div key={date} className="mb-8 p-5 shadow-sm shadow-black rounded-md">
+            <MyBookingSkeleton />
 
-                <h2 className="h6 w-fit text-sm mb-4 bg-[#ccc] px-2 py-1 rounded-md">{ date }</h2>
+            :
 
-                <div className="flex flex-wrap gap-x-6">
+            <div className="sm:basis-1/2 md:basis-2/3">
 
-                  {
-                  
-                    participants[ date ].sort( ( a: Participant, b: Participant ) => a.name.localeCompare( b.name ) ).map( ( { id, name, email } : { id: number, name: string, email: string } ) => (
+              {
 
-                      <div className="[&:not(last-of-type)]:mb-5 shadow-sm shadow-black rounded-md p-2" key={id}>
+                Object.keys( participants ).map( ( date: keyof Acc ) => (
+
+                  <div key={date} className="mb-8 p-5 shadow-sm shadow-black rounded-md">
+
+                    <h2 className="h6 w-fit text-sm mb-4 bg-[#ccc] px-2 py-1 rounded-md">{ date }</h2>
+
+                    <div className="flex flex-wrap gap-x-6">
+
+                      {
+                      
+                        (participants[ date as keyof Object ] as unknown as Participant[])
                         
-                        <div className="mb-1 capitalize">{ name }</div>
+                          .sort( ( a: Participant, b: Participant ) => a.name.localeCompare( b.name ) )
+                          
+                          .map( ( { id, name, email } : { id: number, name: string, email: string } ) => (
 
-                        <div className="mb-2">{ email }</div>
+                            <div className="[&:not(last-of-type)]:mb-5 shadow-sm shadow-black rounded-md p-2" key={id}>
+                              
+                              <div className="mb-1 capitalize">{ name }</div>
 
-                        <div className="flex gap-x-2">
+                              <div className="mb-2">{ email }</div>
 
-                          <button className="px-2 py-1 text-xs text-white rounded-md bg-[green]" type="button" onClick={() => onUpdateHandler( id, name, email )}>
-                            
-                            Update
-                            
-                          </button>
+                              <div className="flex gap-x-2">
 
-                          <button className="px-2 py-1 text-xs text-white rounded-md bg-[red]" type="button" onClick={() => onDeleteHandler( id )}>
-                            
-                            Delete
-                            
-                          </button>
+                                <button className="px-2 py-1 text-xs text-white rounded-md bg-[green]" type="button" onClick={() => onUpdateHandler( id, name, email )}>
+                                  
+                                  Update
+                                  
+                                </button>
 
-                        </div>
+                                <button className="px-2 py-1 text-xs text-white rounded-md bg-[red]" type="button" onClick={() => onDeleteHandler( id )}>
+                                  
+                                  Delete
+                                  
+                                </button>
 
-                      </div>
+                              </div>
 
-                    ) )
-                  
-                  }
+                            </div>
 
-                </div>
+                        ) )
+                      
+                      }
 
-              </div>
+                    </div>
 
-            ) )
+                  </div>
 
-          }
+                ) )
 
-        </div>
+              }
+
+            </div>
+
+        }
 
       </div>
 

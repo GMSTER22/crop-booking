@@ -68,7 +68,7 @@ export default function Home() {
 
           <p>
 
-            During your session, you will learn how to use your cutting machines to maximize your experience using them as well as learn how to take Scrapbook Concierge Kit SVG's and cut them on your own! This is your opportunity to customize our kits them to fit your pictures perfectly; or not, it's up to you.
+            During your session, you will learn how to use your cutting machines to maximize your experience using them as well as learn how to take Scrapbook Concierge Kit SVGs and cut them on your own! This is your opportunity to customize our kits them to fit your pictures perfectly; or not, it is up to you.
 
           </p>
 
@@ -76,7 +76,15 @@ export default function Home() {
 
         <div className="flex-1 basis-1/2">
 
-          <Image src={weekendCraft} alt="" />
+          <Image 
+
+            className="w-full"
+          
+            src={weekendCraft} 
+            
+            alt="" 
+            
+          />
 
         </div>
 
@@ -104,7 +112,7 @@ export default function Home() {
 
         <div className="flex-1 basis-1/2 mb-10 md:mb-0">
 
-          <h2 className="mb-5">I'm Sadie</h2>
+          <h2 className="mb-5">I am Sadie</h2>
 
           <p>
 

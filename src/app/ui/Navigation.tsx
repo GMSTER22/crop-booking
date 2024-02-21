@@ -7,8 +7,8 @@ export default function Navigation() {
 
   const { data: session, status } = useSession();
 
-  console.log(session, 'SESSION DATA')
-  console.log(status, 'STATUS')
+  // console.log(session, 'SESSION DATA')
+  // console.log(status, 'STATUS')
   
   return (
 
@@ -16,13 +16,37 @@ export default function Navigation() {
 
       <Link className="my-2 border-b-transparent hover:text-burnt-sienna border-b-2 hover:border-b-burnt-sienna transition-opacity duration-300" href='/'>Home</Link>
 
-      <Link className="my-2 border-b-transparent hover:text-burnt-sienna border-b-2 hover:border-b-burnt-sienna transition-opacity duration-300" href='/booking'>Book Crop Session</Link>
+      {
 
-      <Link className="my-2 border-b-transparent hover:text-burnt-sienna border-b-2 hover:border-b-burnt-sienna transition-opacity duration-300" href='/my-bookings'>My Bookings</Link>
+        // status === 'authenticated' 
+        
+        // &&
+
+        <Link className="my-2 border-b-transparent hover:text-burnt-sienna border-b-2 hover:border-b-burnt-sienna transition-opacity duration-300" href='/booking'>Book Crop Session</Link>
+
+      }
+
+      {
+        
+        // status === 'authenticated' 
+        
+        // &&
+
+        <Link className="my-2 border-b-transparent hover:text-burnt-sienna border-b-2 hover:border-b-burnt-sienna transition-opacity duration-300" href='/my-bookings'>My Bookings</Link>
+        
+      }
+
+      {
+
+        // status === 'authenticated' 
+                
+        // &&
+
+        <Link className="my-2 border-b-transparent hover:text-burnt-sienna border-b-2 hover:border-b-burnt-sienna transition-opacity duration-300" href='/admin'>Admin</Link>
+
+      }
 
       <Link className="my-2 border-b-transparent hover:text-burnt-sienna border-b-2 hover:border-b-burnt-sienna transition-opacity duration-300" href='/pricing'>Pricing</Link>
-
-      <Link className="my-2 border-b-transparent hover:text-burnt-sienna border-b-2 hover:border-b-burnt-sienna transition-opacity duration-300" href='/admin'>Admin</Link>
 
       {
 

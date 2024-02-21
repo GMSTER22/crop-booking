@@ -10,6 +10,18 @@ type User = {
   image: string;
 }
 
+declare module "next-auth" {
+  /**
+   * Returned by `useSession`, `getSession` and received as a prop on the `SessionProvider` React Context
+   */
+  interface Session {
+    user: {
+      /** The user's postal address. */
+      id: number
+    }
+  }
+}
+
 const authOptions = {
   providers: [
     Github({
@@ -24,9 +36,6 @@ const authOptions = {
   callbacks: {
     async signIn( { user } : { user: User } ) {
 
-      // console.log(user, 'user');
-      // console.log(user.email, 'email');
-
       await checkUser( user );
 
       // console.log(response, 'response');
@@ -38,7 +47,7 @@ const authOptions = {
       return true;
     },
 
-    async session( { session } ) {
+    async session( { session } : { session: any } ) {
 
       const { id, is_admin } = await fetchUserByEmail( session.user.email );
 
@@ -51,6 +60,6 @@ const authOptions = {
   }
 }
 
-const handler = NextAuth( authOptions );
+const handler = NextAuth( authOptions as any );
 
 export { handler as GET, handler as POST }

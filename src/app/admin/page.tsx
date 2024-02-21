@@ -4,12 +4,21 @@ import { useState, useEffect } from "react";
 import Button, { SmallButton } from "../ui/Button";
 import { formatDate } from "../lib/utils";
 import { PlusCircleIcon, MinusCircleIcon } from "@heroicons/react/16/solid";
+import { CropDateAdminSkeleton } from "../ui/CropDatesSkeleton";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 export default function Page() {
+
+  const router = useRouter();
+
+  const { status } = useSession();
 
   const [ dates, setDates ] = useState( 1 );
 
   const [ bookedDates, setBoookedDates ] = useState( [] );
+
+  const [ isBookedDatesLoading, setIsBookedDatesLoading ] = useState( true );
 
   const [ bookedDatesFilterLimit, setBookedDatesFilterLimit ] = useState( 3 );
 
@@ -17,15 +26,23 @@ export default function Page() {
 
     const response = await fetch( 'api/bookings' );
 
-    const bookings = await response.json();
+    if ( response.ok ) {
 
-    console.log( bookings, 'BOOKINGS' );
+      const bookings = await response.json();
 
-    setBoookedDates( bookings );
+      // console.log( bookings, 'BOOKINGS' );
+
+      setIsBookedDatesLoading( false );
+
+      setBoookedDates( bookings );
+
+    }
 
   }
 
   useEffect( () => {
+
+    if ( status === 'unauthenticated' ) return router.push( '/api/auth/signin' );
 
     fetchBookings();
 
@@ -122,10 +139,6 @@ export default function Page() {
 
         const data = await response.text();
 
-        console.log( response, 'check response here' );
-
-        console.log( data, 'check data here' );
-
         fetchBookings();
 
       }
@@ -172,11 +185,13 @@ export default function Page() {
 
         const data = await response.text();
 
-        console.log( data, 'check data here' );
+        // console.log( data, 'check data here' );
 
-        console.log( event.target, 'target' );
+        // console.log( event.target, 'target' );
 
-        event.target?.reset();
+        const target = event.target as HTMLFormElement;
+
+        target.reset();
 
         fetchBookings();
 
@@ -184,13 +199,15 @@ export default function Page() {
 
     } catch (error) {
       
+      console.log( error );
+
     }
 
   }
 
   return (
 
-    <div className="px-2 py-10 sm:px-5">
+    <div className="px-2 py-10 sm:px-5  min-h-[600px]">
 
       <h1 className="mb-20 text-center">Admin</h1>
 
@@ -211,45 +228,51 @@ export default function Page() {
 
           {
 
-            bookedDates.length ?
+            isBookedDatesLoading ?
 
-              <ul>
-
-                {
-
-                  bookedDates
-                  
-                    .filter( ( _, index ) => index < bookedDatesFilterLimit )
-                      
-                    .map( ( { id, date, seats_available, seats_booked } ) => (
-
-                      <li key={id} className="w-fit mx-auto grid grid-cols-[100px_130px_80px] justify-items-center items-center py-2 gap-x-3 shadow-sm shadow-black">
-
-                        <div>{ formatDate( new Date( date ) ) }</div>
-
-                        <div>{ `${seats_available - seats_booked}` }</div>
-
-                        <div className="px-4">
-
-                          <button className="px-2 py-1 text-xs text-white rounded-md bg-[red]" type="button" aria-label="delete crop date" onClick={() => deleteCropDate( id )}>
-
-                            Delete
-
-                          </button>
-
-                        </div>
-
-                      </li>
-
-                    ) )
-
-                }
-
-              </ul>
+              <CropDateAdminSkeleton />
 
               :
 
-              <p className="py-3 text-sm text-center text-[red]">No Dates Available at the moment</p>
+              bookedDates.length ?
+
+                <ul>
+
+                  {
+
+                    bookedDates
+                    
+                      .filter( ( _, index ) => index < bookedDatesFilterLimit )
+                        
+                      .map( ( { id, date, seats_available, seats_booked } ) => (
+
+                        <li key={id} className="w-fit mx-auto grid grid-cols-[100px_130px_80px] justify-items-center items-center py-2 gap-x-3 shadow-sm shadow-black">
+
+                          <div>{ formatDate( new Date( date ) ) }</div>
+
+                          <div>{ `${seats_available - seats_booked}` }</div>
+
+                          <div className="px-4">
+
+                            <button className="px-2 py-1 text-xs text-white rounded-md bg-[red] disabled:opacity-30" type="button" onClick={() => deleteCropDate( id )} disabled={ seats_booked > 0 }>
+
+                              Delete
+
+                            </button>
+
+                          </div>
+
+                        </li>
+
+                      ) )
+
+                  }
+
+                </ul>
+
+                :
+
+                <p className="py-3 text-sm text-center text-[red]">No Dates Available at the moment</p>
 
           }
 

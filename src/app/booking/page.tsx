@@ -1,13 +1,14 @@
 'use client';
 
-import { useState, useEffect, Suspense } from "react";
-import { Metadata } from "next";
+import { useState, useEffect } from "react";
 import { formatDate } from "../lib/utils";
 import { MinusCircleIcon, PlusCircleIcon } from "@heroicons/react/16/solid";
 import Button, { SmallButton } from "../ui/Button";
-import { useSession } from "next-auth/react";
+import { getSession, useSession } from "next-auth/react";
 import { Booking } from "../lib/definition";
 import { fetchBookings } from "../lib/data";
+import { useRouter } from "next/navigation";
+import CropDateSkeleton from "../ui/CropDatesSkeleton";
 
 // export const metadata: Metadata = {
 //   title: 'Book A Session',
@@ -15,9 +16,13 @@ import { fetchBookings } from "../lib/data";
 
 export default function Page() {
 
-  const { data: session } = useSession();
+  const router = useRouter();
 
-  const [ bookedDates, setBoookedDates ] = useState( [] as Booking[] );
+  const { data: session, status } = useSession();
+
+  const [ bookedDates, setBookedDates ] = useState( [] as Booking[] );
+
+  const [ isBookedDatesLoading, setIsBookedDatesLoading ] = useState( true );
 
   const [ pickedDates, setPickedDates ] = useState( [] as Booking[] );
 
@@ -27,7 +32,7 @@ export default function Page() {
 
   const [ dateFieldValidation, setDateFieldValidation ] = useState( false );
 
-  const [ bookedDatesFilterLimit, setBookedDatesFilterLimit ] = useState( 1 );
+  const [ bookedDatesFilterLimit, setBookedDatesFilterLimit ] = useState( 3 );
 
   useEffect( () => {
 
@@ -37,11 +42,15 @@ export default function Page() {
 
       const bookings = await response.json();
 
-      console.log( bookings, 'BOOKINGS' );
+      // console.log( bookings, 'BOOKINGS' );
 
-      setBoookedDates( bookings );
+      setIsBookedDatesLoading( false );
+
+      setBookedDates( bookings );
   
     }
+
+    if ( status === 'unauthenticated' ) return router.push( '/api/auth/signin' );
 
     fetchBookings();
 
@@ -117,9 +126,12 @@ export default function Page() {
 
         const data = await response.text();
 
-        event.target?.reset();
+        const target = event.target as HTMLFormElement;
 
-        fetchBookings();
+        target.reset();
+
+        // fetchBookings();
+        router.push( '/my-bookings' );
 
       }
 
@@ -133,7 +145,7 @@ export default function Page() {
 
   return (
 
-    <div className="px-5 py-10">
+    <div className="px-5 py-10 min-h-[600px]">
 
       <h1 className="mb-20 text-center">Crop Dates</h1>
 
@@ -154,55 +166,55 @@ export default function Page() {
 
           {
 
-            bookedDates.length ?
+            isBookedDatesLoading ?
 
-              <ul>
-
-                {
-
-                  bookedDates
-                  
-                    .filter( ( _, index ) => index < bookedDatesFilterLimit )
-                      
-                    .map( ( { id, date, seats_available, seats_booked } ) => (
-
-                      <li key={id} className="w-fit mx-auto grid grid-cols-[100px_140px_50px] justify-items-center items-center py-2 gap-x-3 shadow-sm shadow-black">
-
-                        <div>{ formatDate( new Date( date ) ) }</div>
-
-                        <div>{ `${seats_available - seats_booked}` }</div>
-
-                        <div className="px-4">
-
-                          {/* <button className="mr-1" type="button" aria-label="remove picked dates" onClick={() => removePickedDate( { id, date, seats_available } )}>
-
-                            <MinusCircleIcon className="h-5 w-5 text-[red] pointer-events-none" />
-
-                          </button> */}
-
-                          <button type="button" aria-label="add picked dates" onClick={() => addPickedDate( { id, date, seats_available, seats_booked } )}>
-
-                            <PlusCircleIcon className="h-6 w-6 text-[green] pointer-events-none" />
-
-                          </button>
-
-                        </div>
-
-                      </li>
-
-                    ) )
-
-                }
-
-              </ul>
+              <CropDateSkeleton />
 
               :
 
-              <p className="py-3 text-sm text-center text-[red]">
-                
-                No Dates Available at the moment
-                
-              </p>
+              bookedDates.length ?
+
+                <ul>
+
+                  {
+
+                    bookedDates
+                    
+                      .filter( ( _, index ) => index < bookedDatesFilterLimit )
+                        
+                      .map( ( { id, date, seats_available, seats_booked } ) => (
+
+                        <li key={id} className="w-fit mx-auto grid grid-cols-[100px_140px_50px] justify-items-center items-center py-2 gap-x-3 shadow-sm shadow-black">
+
+                          <div>{ formatDate( new Date( date ) ) }</div>
+
+                          <div>{ `${seats_available - seats_booked}` }</div>
+
+                          <div className="px-4">
+
+                            <button type="button" aria-label="add picked dates" onClick={() => addPickedDate( { id, date, seats_available, seats_booked } )}>
+
+                              <PlusCircleIcon className="h-6 w-6 text-[green] pointer-events-none" />
+
+                            </button>
+
+                          </div>
+
+                        </li>
+
+                      ) )
+
+                  }
+
+                </ul>
+
+                :
+
+                <p className="py-3 text-sm text-center text-[red]">
+                  
+                  No Dates Available at the moment
+                  
+                </p>
 
           }
 

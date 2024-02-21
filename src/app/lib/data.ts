@@ -47,7 +47,7 @@ export async function fetchUserByEmail( email : string) {
 
   try {
 
-    console.log( 'Email', email );
+    // console.log( 'Email', email );
 
     const user = await sql`SELECT * FROM swsUsers WHERE email = ${email}`;
 
@@ -122,7 +122,7 @@ export async function createBookings( dates : Date[], seats: number ) {
     
     const values = dates.map( date => [ new Date(date), seats ] );
 
-    console.log(values, 'CHECK VALUES');
+    // console.log(values, 'CHECK VALUES');
 
     values.forEach( async ( [ date, seats ] ) => await sql`INSERT INTO swsBookings (date, seats_available) VALUES (${date as number}::timestamp AT TIME ZONE 'America/New_York', ${seats as number})` );
 
@@ -161,6 +161,22 @@ export async function createParticipants( participants : [] ) {
   } catch ( error ) {
     
     console.log( 'Failed to insert participants' );
+
+  }
+
+}
+
+export async function updateParticipants( { id, name, email } : { id : number, name: string, email: string } ) {
+  
+  try {
+    
+    const updateParticipantOutcome = await sql`UPDATE swsParticipants SET name = ${name}, email = ${email} WHERE id = ${id};`;
+
+    console.log( updateParticipantOutcome, 'UPDATED Participant OUtcome' );
+
+  } catch ( error ) {
+    
+    console.log( 'Failed to update participant booking ' + id );
 
   }
 
