@@ -45,7 +45,7 @@ export default function Page() {
 
     if ( status === 'authenticated' ) fetchBookings();
 
-  } );
+  }, [] );
 
   const decreaseDateInputs = () => setDates( previousValue => previousValue > 1 ?  previousValue - 1 : 1 );
 

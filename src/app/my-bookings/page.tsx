@@ -92,7 +92,7 @@ export default function Page() {
 
     if ( status === 'authenticated' ) fetchUserBookings();
 
-  } );
+  }, [] );
 
   function onUpdateHandler( id: number, name: string, email: string ) {
 

@@ -23,7 +23,7 @@ export default function Page() {
 
     fetchProvider();
     
-  } );
+  }, [] );
 
   async function fetchProvider() {
 

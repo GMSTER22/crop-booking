@@ -3,13 +3,7 @@ import { fetchUserBookings, updateParticipants, deleteParticipants } from "@/app
 
 export async function GET( request: Request, { params }: { params: { id: number } } ) {
 
-  // const res = await request.json();
-
-  // const { searchParams } = new URL( request.url );
-
   const id = params.id;
-
-  console.log( 'response PARAMS', params.id );
 
   const response = await fetchUserBookings( id as unknown as number );
 
@@ -28,8 +22,6 @@ export async function GET( request: Request, { params }: { params: { id: number 
 export async function POST( request: Request ) {
 
   const participantData = await request.json();
-
-  console.log( participantData, 'body check' );
 
   const res = await updateParticipants( participantData );
 
@@ -58,8 +50,6 @@ export async function DELETE( request: Request, { params }: { params: { id: numb
   const id = params.id;
 
   const response = await deleteParticipants( id );
-
-  console.log(response, 'participants deletion')
 
   return new Response( 'Deleted!', options );
 

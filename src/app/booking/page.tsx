@@ -35,25 +35,25 @@ export default function Page() {
 
   const [ bookedDatesFilterLimit, setBookedDatesFilterLimit ] = useState( 3 );
 
+  const fetchBookings = async () => {
+
+    const response = await fetch( 'api/bookings' );
+
+    const bookings = await response.json();
+
+    // console.log( bookings, 'BOOKINGS' );
+
+    setIsBookedDatesLoading( false );
+
+    setBookedDates( bookings );
+
+  }
+
   useEffect( () => {
-
-    const fetchBookings = async () => {
-
-      const response = await fetch( 'api/bookings' );
-
-      const bookings = await response.json();
-
-      // console.log( bookings, 'BOOKINGS' );
-
-      setIsBookedDatesLoading( false );
-
-      setBookedDates( bookings );
-  
-    }
 
     if ( status === 'authenticated' ) fetchBookings();
 
-  } );
+  }, [] );
 
   const decreaseParticipants = () => setParticipants( previousValue => previousValue > 1 ?  previousValue - 1 : 1 );
 
@@ -129,8 +129,8 @@ export default function Page() {
 
         target.reset();
 
-        // fetchBookings();
-        router.push( '/my-bookings' );
+        fetchBookings();
+        // router.push( '/my-bookings' );
 
       }
 

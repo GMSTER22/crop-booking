@@ -21,11 +21,7 @@ export async function POST( request: Request ) {
 
   const participants = await request.json();
 
-  // console.log( participants, 'body' );
-
   const res = await createParticipants( participants );
-
-  // console.log( res, 'post response' );
 
   const options = { 
 
