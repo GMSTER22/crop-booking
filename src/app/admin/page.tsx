@@ -7,6 +7,7 @@ import { PlusCircleIcon, MinusCircleIcon } from "@heroicons/react/16/solid";
 import { CropDateAdminSkeleton } from "../ui/CropDatesSkeleton";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import UnauthenticatedUserMessage from "../ui/UnauthenticatedUserMessage";
 
 export default function Page() {
 
@@ -42,9 +43,7 @@ export default function Page() {
 
   useEffect( () => {
 
-    if ( status === 'unauthenticated' ) return router.push( '/api/auth/signin' );
-
-    fetchBookings();
+    if ( status === 'authenticated' ) fetchBookings();
 
   }, [] );
 
@@ -205,164 +204,173 @@ export default function Page() {
 
   }
 
-  return (
+  if ( status === 'authenticated' ) {
 
-    <div className="px-2 py-10 sm:px-5  min-h-[600px]">
-
-      <h1 className="mb-20 text-center">Admin</h1>
-
-      <div className="md:flex">
-
-        {/* Dates Available */}
-        <div className="mb-16 w-fit mx-auto md:w-auto md:basis-1/2">
-
-          <div className="w-fit mx-auto grid grid-cols-[100px_130px_80px] justify-items-center gap-x-3 py-2 text-[#6b7280] shadow-sm shadow-black">
-
-            <div>Dates</div>
-
-            <div>Seats Remaining</div>
-
-            <div></div>
-
-          </div>
-
-          {
-
-            isBookedDatesLoading ?
-
-              <CropDateAdminSkeleton />
-
-              :
-
-              bookedDates.length ?
-
-                <ul>
-
-                  {
-
-                    bookedDates
-                    
-                      .filter( ( _, index ) => index < bookedDatesFilterLimit )
-                        
-                      .map( ( { id, date, seats_available, seats_booked } ) => (
-
-                        <li key={id} className="w-fit mx-auto grid grid-cols-[100px_130px_80px] justify-items-center items-center py-2 gap-x-3 shadow-sm shadow-black">
-
-                          <div>{ formatDate( new Date( date ) ) }</div>
-
-                          <div>{ `${seats_available - seats_booked}` }</div>
-
-                          <div className="px-4">
-
-                            <button className="px-2 py-1 text-xs text-white rounded-md bg-[red] disabled:opacity-30" type="button" onClick={() => deleteCropDate( id )} disabled={ seats_booked > 0 }>
-
-                              Delete
-
-                            </button>
-
-                          </div>
-
-                        </li>
-
-                      ) )
-
-                  }
-
-                </ul>
-
-                :
-
-                <p className="py-3 text-sm text-center text-[red]">No Dates Available at the moment</p>
-
-          }
-
-          <div className="my-3 text-center">
-
+    return (
+  
+      <div className="px-2 py-10 sm:px-5  min-h-[600px]">
+  
+        <h1 className="mb-20 text-center">Admin</h1>
+  
+        <div className="md:flex">
+  
+          {/* Dates Available */}
+          <div className="mb-16 w-fit mx-auto md:w-auto md:basis-1/2">
+  
+            <div className="w-fit mx-auto grid grid-cols-[100px_130px_80px] justify-items-center gap-x-3 py-2 text-[#6b7280] shadow-sm shadow-black">
+  
+              <div>Dates</div>
+  
+              <div>Seats Remaining</div>
+  
+              <div></div>
+  
+            </div>
+  
             {
-
-              bookedDatesFilterLimit < bookedDates.length ?
-
-                <SmallButton type="button" cta="Show More Dates" onClickHandler={onShowMoreDatesHandler}></SmallButton>
-
+  
+              isBookedDatesLoading ?
+  
+                <CropDateAdminSkeleton />
+  
                 :
-
-                ''
-
+  
+                bookedDates.length ?
+  
+                  <ul>
+  
+                    {
+  
+                      bookedDates
+                      
+                        .filter( ( _, index ) => index < bookedDatesFilterLimit )
+                          
+                        .map( ( { id, date, seats_available, seats_booked } ) => (
+  
+                          <li key={id} className="w-fit mx-auto grid grid-cols-[100px_130px_80px] justify-items-center items-center py-2 gap-x-3 shadow-sm shadow-black">
+  
+                            <div>{ formatDate( new Date( date ) ) }</div>
+  
+                            <div>{ `${seats_available - seats_booked}` }</div>
+  
+                            <div className="px-4">
+  
+                              <button className="px-2 py-1 text-xs text-white rounded-md bg-[red] disabled:opacity-30" type="button" onClick={() => deleteCropDate( id )} disabled={ seats_booked > 0 }>
+  
+                                Delete
+  
+                              </button>
+  
+                            </div>
+  
+                          </li>
+  
+                        ) )
+  
+                    }
+  
+                  </ul>
+  
+                  :
+  
+                  <p className="py-3 text-sm text-center text-[red]">No Dates Available for customers to book</p>
+  
             }
-
-          </div>
-
-        </div>
-
-        {/* Form */}
-        <div className="basis-1/2">
-
-          <form className="p-5 shadow-xl shadow-black rounded-md sm:p-8" onSubmit={onFormSubmit}>
-
-            <div className="mb-5">
-
-              <div className="flex justify-between gap-x-1">
-
-                <span>{ dates > 1 ? 'Dates' : 'Date' }</span>
-
-                <div>
-
-                  <button className="mr-3" type="button" aria-label="decrease dates" onClick={decreaseDateInputs}>
-
-                    <MinusCircleIcon className="h-6 w-6 text-[red] pointer-events-none" />
-
-                  </button>
-
-                  <button type="button" aria-label="increase dates" onClick={increaseDateInputs}>
-
-                    <PlusCircleIcon className="h-6 w-6 text-[green] pointer-events-none" />
-
-                  </button>
-
-                </div>
-
-              </div>
-
-              {              
-
-                Array( dates ).fill( null ).map( ( date: number, index: number ) => (
-
-                  <div key={++index} className="mb-2">
-
-                    <label >
-                      <input className="w-full p-2 focus:ring-burnt-sienna focus:border-burnt-sienna" type="date" name={`date-${++index}`} onChange={onDateChange} required />
-                    </label>
-
-                  </div>
-
-                ) ) 
-
+  
+            <div className="my-3 text-center">
+  
+              {
+  
+                bookedDatesFilterLimit < bookedDates.length ?
+  
+                  <SmallButton type="button" cta="Show More Dates" onClickHandler={onShowMoreDatesHandler}></SmallButton>
+  
+                  :
+  
+                  ''
+  
               }
-
+  
             </div>
-
-            <div className="mb-10">
-
-              <label htmlFor="seats">Seats Available</label>
-
-              <input className="w-full p-2 focus:ring-burnt-sienna focus:border-burnt-sienna" type="number" min={1} name="seats" id="seats" required />
-
-            </div>
-
-            <div className="text-center">
-
-              <Button type="submit" cta="Add Crop Date" />
-
-            </div>
-
-          </form>
-
+  
+          </div>
+  
+          {/* Form */}
+          <div className="basis-1/2">
+  
+            <form className="p-5 shadow-xl shadow-black rounded-md sm:p-8" onSubmit={onFormSubmit}>
+  
+              <div className="mb-5">
+  
+                <div className="flex justify-between gap-x-1">
+  
+                  <span>{ dates > 1 ? 'Dates' : 'Date' }</span>
+  
+                  <div>
+  
+                    <button className="mr-3" type="button" aria-label="decrease dates" onClick={decreaseDateInputs}>
+  
+                      <MinusCircleIcon className="h-6 w-6 text-[red] pointer-events-none" />
+  
+                    </button>
+  
+                    <button type="button" aria-label="increase dates" onClick={increaseDateInputs}>
+  
+                      <PlusCircleIcon className="h-6 w-6 text-[green] pointer-events-none" />
+  
+                    </button>
+  
+                  </div>
+  
+                </div>
+  
+                {              
+  
+                  Array( dates ).fill( null ).map( ( date: number, index: number ) => (
+  
+                    <div key={++index} className="mb-2">
+  
+                      <label >
+                        <input className="w-full p-2 focus:ring-burnt-sienna focus:border-burnt-sienna" type="date" name={`date-${++index}`} onChange={onDateChange} required />
+                      </label>
+  
+                    </div>
+  
+                  ) ) 
+  
+                }
+  
+              </div>
+  
+              <div className="mb-10">
+  
+                <label htmlFor="seats">Seats Available</label>
+  
+                <input className="w-full p-2 focus:ring-burnt-sienna focus:border-burnt-sienna" type="number" min={1} name="seats" id="seats" required />
+  
+              </div>
+  
+              <div className="text-center">
+  
+                <Button type="submit" cta="Add Crop Date" />
+  
+              </div>
+  
+            </form>
+  
+          </div>
+  
         </div>
-
+  
       </div>
+  
+    )
 
-    </div>
+  } else {
 
-  )
+    return <UnauthenticatedUserMessage />
+
+  }
+
 
 }

@@ -21,14 +21,19 @@ export const metadata: Metadata = {
 }
 
 export default async function RootLayout({
+
   children
+
 }: Readonly<{
+
   children: React.ReactNode
+
 }>) {
 
   const session = await getServerSession();
 
   return (
+
     <html lang="en" className="scroll-smooth">
 
       <SessionProvider session={session}>
@@ -82,5 +87,7 @@ export default async function RootLayout({
       </SessionProvider>
 
     </html>
+
   );
+
 }

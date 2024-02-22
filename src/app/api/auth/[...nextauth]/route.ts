@@ -1,7 +1,8 @@
-import NextAuth from "next-auth";
+import NextAuth, { AuthOptions, NextAuthOptions } from "next-auth";
 import Github from "next-auth/providers/github";
 import Google from "next-auth/providers/google";
 import { checkUser, fetchUserByEmail } from "@/app/lib/data";
+// import { AdapterUser } from "next-auth/adapters";
 
 type User = {
   id: number;
@@ -22,7 +23,7 @@ declare module "next-auth" {
   }
 }
 
-const authOptions = {
+export const authOptions = {
   providers: [
     Github({
       clientId: process.env.GITHUB_ID as string,
@@ -38,12 +39,6 @@ const authOptions = {
 
       await checkUser( user );
 
-      // console.log(response, 'response');
-
-      // const data = await response?.json();
-
-      // console.log(data, 'data');
-      
       return true;
     },
 
@@ -57,9 +52,16 @@ const authOptions = {
       return session
 
     },
+  },
+
+  pages: {
+
+    signIn: '/login'
+
   }
+  
 }
 
-const handler = NextAuth( authOptions as any );
+const handler = NextAuth( authOptions as unknown as AuthOptions );
 
 export { handler as GET, handler as POST }

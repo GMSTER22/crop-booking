@@ -9,6 +9,7 @@ import { Booking } from "../lib/definition";
 import { fetchBookings } from "../lib/data";
 import { useRouter } from "next/navigation";
 import CropDateSkeleton from "../ui/CropDatesSkeleton";
+import UnauthenticatedUserMessage from "../ui/UnauthenticatedUserMessage";
 
 // export const metadata: Metadata = {
 //   title: 'Book A Session',
@@ -50,9 +51,7 @@ export default function Page() {
   
     }
 
-    if ( status === 'unauthenticated' ) return router.push( '/api/auth/signin' );
-
-    fetchBookings();
+    if ( status === 'authenticated' ) fetchBookings();
 
   }, [] );
 
@@ -143,233 +142,251 @@ export default function Page() {
 
   }
 
-  return (
+  if ( status === 'authenticated' ) {
 
-    <div className="px-5 py-10 min-h-[600px]">
+    return (
 
-      <h1 className="mb-20 text-center">Crop Dates</h1>
+      <div className="px-5 py-10 min-h-[600px]">
 
-      <div className="md:flex">
+        <h1 className="mb-20 text-center">Crop Dates</h1>
 
-        {/* Dates Available */}
-        <div className="mb-16 w-fit mx-auto md:w-auto md:basis-1/2">
+        <div className="md:flex">
 
-          <div className="w-fit mx-auto grid grid-cols-[100px_140px_50px] justify-items-center gap-x-3 py-2 text-[#6b7280] shadow-sm shadow-black">
+          {/* Dates Available */}
+          <div className="mb-16 w-fit mx-auto md:w-auto md:basis-1/2">
 
-            <div>Dates</div>
+            <div className="w-fit mx-auto grid grid-cols-[100px_140px_50px] justify-items-center gap-x-3 py-2 text-[#6b7280] shadow-sm shadow-black">
 
-            <div>Seats Remaining</div>
+              <div>Dates</div>
 
-            <div></div>
+              <div>Seats Remaining</div>
+
+              <div></div>
+
+            </div>
+
+            {
+
+              isBookedDatesLoading ?
+
+                <CropDateSkeleton />
+
+                :
+
+                bookedDates.length ?
+
+                  <ul>
+
+                    {
+
+                      bookedDates
+                      
+                        .filter( ( _, index ) => index < bookedDatesFilterLimit )
+                          
+                        .map( ( { id, date, seats_available, seats_booked } ) => (
+
+                          <li key={id} className="w-fit mx-auto grid grid-cols-[100px_140px_50px] justify-items-center items-center py-2 gap-x-3 shadow-sm shadow-black">
+
+                            <div>{ formatDate( new Date( date ) ) }</div>
+
+                            <div>{ `${seats_available - seats_booked}` }</div>
+
+                            <div className="px-4">
+
+                              <button type="button" aria-label="add picked dates" onClick={() => addPickedDate( { id, date, seats_available, seats_booked } )}>
+
+                                <PlusCircleIcon className="h-6 w-6 text-[green] pointer-events-none" />
+
+                              </button>
+
+                            </div>
+
+                          </li>
+
+                        ) )
+
+                    }
+
+                  </ul>
+
+                  :
+
+                  <p className="py-3 text-sm text-center text-[red]">
+                    
+                    No Dates Available at the moment
+                    
+                  </p>
+
+            }
+
+            <div className="my-3 text-center">
+
+              {
+
+                bookedDatesFilterLimit < bookedDates.length ?
+
+                  <SmallButton type="button" cta="Show More Dates" onClickHandler={onShowMoreDatesHandler}></SmallButton>
+
+                  :
+
+                  ''
+
+              }
+
+            </div>
 
           </div>
 
-          {
+          {/* Form */}
+          <div className="md:basis-1/2">
 
-            isBookedDatesLoading ?
-
-              <CropDateSkeleton />
-
-              :
+            {
 
               bookedDates.length ?
 
-                <ul>
+                <form className="p-5 shadow-xl shadow-black rounded-md sm:p-8" onSubmit={onFormSubmit}>
+
+                <div className="mb-8">
+
+                  <div className="flex justify-between gap-x-1">
+
+                    { dates > 1 ? 'Dates' : 'Date' }
+
+                  </div>
 
                   {
 
-                    bookedDates
-                    
-                      .filter( ( _, index ) => index < bookedDatesFilterLimit )
-                        
-                      .map( ( { id, date, seats_available, seats_booked } ) => (
+                    pickedDates.length ?       
 
-                        <li key={id} className="w-fit mx-auto grid grid-cols-[100px_140px_50px] justify-items-center items-center py-2 gap-x-3 shadow-sm shadow-black">
+                      pickedDates.map( ( { id, date, seats_available, seats_booked } ) => (
 
-                          <div>{ formatDate( new Date( date ) ) }</div>
+                          <div key={id} className="grid mb-2">
 
-                          <div>{ `${seats_available - seats_booked}` }</div>
+                            <label className="row-start-1 col-start-1">
+                              <input className="w-full p-2 focus:ring-burnt-sienna focus:border-burnt-sienna" type="text" name={`booking-${id}`} value={formatDate(new Date(date))} disabled />
+                            </label>
 
-                          <div className="px-4">
+                            <button className="row-start-1 col-start-1 justify-self-end z-10 mr-1" type="button" aria-label="remove picked dates" onClick={() => removePickedDate( { id, date, seats_available, seats_booked } )}>
 
-                            <button type="button" aria-label="add picked dates" onClick={() => addPickedDate( { id, date, seats_available, seats_booked } )}>
-
-                              <PlusCircleIcon className="h-6 w-6 text-[green] pointer-events-none" />
+                              <MinusCircleIcon className="h-6 w-6 text-[red] pointer-events-none" />
 
                             </button>
 
                           </div>
 
-                        </li>
-
                       ) )
+
+                      :
+
+                      <div className="p-2 text-[#6b7280]">
+
+                        Pick Date(s) Above
+
+                      </div>
 
                   }
 
-                </ul>
+                  {
 
-                :
+                    ! pickedDates.length && dateFieldValidation ?
 
-                <p className="py-3 text-sm text-center text-[red]">
-                  
-                  No Dates Available at the moment
-                  
-                </p>
+                      <p className="text-sm text-[red]">
 
-          }
+                        Date selection required
 
-          <div className="my-3 text-center">
+                      </p>
 
-            {
+                      :
 
-              bookedDatesFilterLimit < bookedDates.length ?
+                      ''
 
-                <SmallButton type="button" cta="Show More Dates" onClickHandler={onShowMoreDatesHandler}></SmallButton>
+                  }
 
-                :
-
-                ''
-
-            }
-
-          </div>
-
-        </div>
-
-        {/* Form */}
-        <div className="md:basis-1/2">
-
-          <form className="p-5 shadow-xl shadow-black rounded-md sm:p-8" onSubmit={onFormSubmit}>
-
-          <div className="mb-8">
-
-            <div className="flex justify-between gap-x-1">
-
-              { dates > 1 ? 'Dates' : 'Date' }
-
-            </div>
-
-            {
-
-              pickedDates.length ?       
-
-                pickedDates.map( ( { id, date, seats_available, seats_booked } ) => (
-
-                    <div key={id} className="grid mb-2">
-
-                      <label className="row-start-1 col-start-1">
-                        <input className="w-full p-2 focus:ring-burnt-sienna focus:border-burnt-sienna" type="text" name={`booking-${id}`} value={formatDate(new Date(date))} disabled />
-                      </label>
-
-                      <button className="row-start-1 col-start-1 justify-self-end z-10 mr-1" type="button" aria-label="remove picked dates" onClick={() => removePickedDate( { id, date, seats_available, seats_booked } )}>
-
-                        <MinusCircleIcon className="h-6 w-6 text-[red] pointer-events-none" />
-
-                      </button>
-
-                    </div>
-
-                ) )
-
-                :
-
-                <div className="p-2 text-[#6b7280]">
-
-                  Pick Date(s) Above
 
                 </div>
 
-            }
+                <div className="mb-10">
 
-            {
+                <div className="flex justify-between gap-x-1">
 
-              ! pickedDates.length && dateFieldValidation ?
+                  <span>{ participants > 1 ? 'Participants' : 'Participant' }</span>
 
-                <p className="text-sm text-[red]">
+                  <div>
 
-                  Date selection required
+                    <button className="mr-2" type="button" aria-label="decrease dates" onClick={decreaseParticipants}>
 
-                </p>
+                      <MinusCircleIcon className={`h-6 w-6 text-[red] pointer-events-none transition-opacity ${participants < 2 ? 'opacity-30' : ''}`} />
 
-                :
+                    </button>
 
-                ''
+                    <button type="button" aria-label="increase dates" onClick={increaseParticipants}>
 
-            }
+                      <PlusCircleIcon className="h-6 w-6 text-[green] pointer-events-none" />
 
-
-          </div>
-
-          <div className="mb-10">
-
-          <div className="flex justify-between gap-x-1">
-
-            <span>{ participants > 1 ? 'Participants' : 'Participant' }</span>
-
-            <div>
-
-              <button className="mr-2" type="button" aria-label="decrease dates" onClick={decreaseParticipants}>
-
-                <MinusCircleIcon className={`h-6 w-6 text-[red] pointer-events-none transition-opacity ${participants < 2 ? 'opacity-30' : ''}`} />
-
-              </button>
-
-              <button type="button" aria-label="increase dates" onClick={increaseParticipants}>
-
-                <PlusCircleIcon className="h-6 w-6 text-[green] pointer-events-none" />
-
-              </button>
-
-            </div>
-
-            </div>
-
-            {              
-
-              Array( participants ).fill( null ).map( ( participant: number, index: number ) => (
-
-                <div key={++index} className="mb-4">
-
-                  <div className="mb-1">
-
-                    <span className="flex justify-center items-center w-6 h-6 text-xs bg-[#ccc] text-black rounded-full">
-
-                      {index + 1}
-
-                    </span>
+                    </button>
 
                   </div>
 
-                  <label className="block mb-2">
-                    <input className="w-full p-2 focus:ring-burnt-sienna focus:border-burnt-sienna" type="text" name={`name-${index + 1}`} placeholder='Participant Name' required />
-                  </label>
+                  </div>
 
-                  <label >
-                    <input className="w-full p-2 focus:ring-burnt-sienna focus:border-burnt-sienna" type="email" name={`email-${index + 1}`} placeholder="Participant Email" required />
-                  </label>
+                  {              
+
+                    Array( participants ).fill( null ).map( ( participant: number, index: number ) => (
+
+                      <div key={++index} className="mb-4">
+
+                        <div className="mb-1">
+
+                          <span className="flex justify-center items-center w-6 h-6 text-xs bg-[#ccc] text-black rounded-full">
+
+                            {index + 1}
+
+                          </span>
+
+                        </div>
+
+                        <label className="block mb-2">
+                          <input className="w-full p-2 focus:ring-burnt-sienna focus:border-burnt-sienna" type="text" name={`name-${index + 1}`} placeholder='Participant Name' required />
+                        </label>
+
+                        <label >
+                          <input className="w-full p-2 focus:ring-burnt-sienna focus:border-burnt-sienna" type="email" name={`email-${index + 1}`} placeholder="Participant Email" required />
+                        </label>
+
+                      </div>
+
+                    ) ) 
+
+                  }
 
                 </div>
 
-              ) ) 
+                <div className="text-center">
+
+                  <Button type="submit" cta="Book Dates" />
+
+                </div>
+
+                </form>
+
+                :
+
+                ''
 
             }
 
           </div>
-
-          <div className="text-center">
-
-            <Button type="submit" cta="Book Dates" />
-
-          </div>
-
-          </form>
 
         </div>
 
       </div>
 
-    </div>
+    )
 
-  )
+  } else {
+
+    return <UnauthenticatedUserMessage />
+
+  }
 
 }

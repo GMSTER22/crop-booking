@@ -22,23 +22,23 @@ export default function Page() {
 
             <span className="justify-self-end">Individual</span>
 
-            <span className="justify-self-center">$40</span>
+            <span className="justify-self-center text-lg font-bold">$40</span>
 
             <span className="justify-self-end">Group Rate for 5</span>
 
-            <span className="justify-self-center">$180</span>
+            <span className="justify-self-center text-lg font-bold">$180</span>
 
             <span className="justify-self-end">Group Rate for 6</span>
 
-            <span className="justify-self-center">$200</span>
+            <span className="justify-self-center text-lg font-bold">$200</span>
 
             <span className="justify-self-end">Group Rate for 7</span>
 
-            <span className="justify-self-center">$220</span>
+            <span className="justify-self-center text-lg font-bold">$220</span>
 
             <span className="justify-self-end">Group Rate for 8</span>
 
-            <span className="justify-self-center">$240</span>
+            <span className="justify-self-center text-lg font-bold">$240</span>
 
           </div>
 
@@ -52,23 +52,23 @@ export default function Page() {
 
             <span className="justify-self-end">Individual</span>
 
-            <span className="justify-self-center">$100</span>
+            <span className="justify-self-center text-lg font-bold">$100</span>
 
             <span className="justify-self-end">Group Rate for 5</span>
 
-            <span className="justify-self-center">$450</span>
+            <span className="justify-self-center text-lg font-bold">$450</span>
 
             <span className="justify-self-end">Group Rate for 6</span>
 
-            <span className="justify-self-center">$500</span>
+            <span className="justify-self-center text-lg font-bold">$500</span>
 
             <span className="justify-self-end">Group Rate for 7</span>
 
-            <span className="justify-self-center">$550</span>
+            <span className="justify-self-center text-lg font-bold">$550</span>
 
             <span className="justify-self-end">Group Rate for 8</span>
 
-            <span className="justify-self-center">$600</span>
+            <span className="justify-self-center text-lg font-bold">$600</span>
 
           </div>
 
