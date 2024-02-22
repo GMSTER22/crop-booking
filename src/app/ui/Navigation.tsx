@@ -22,31 +22,31 @@ export default function Navigation() {
 
     <nav className="max-w-fit mx-auto my-5 flex justify-center flex-wrap gap-x-10 gax-y-5">
 
-      <Link className={`my-2 border-b-transparent hover:text-burnt-sienna border-b-2 hover:border-b-burnt-sienna transition-opacity duration-300 ${pathname === '/' && 'border-b-burnt-sienna text-burnt-sienna'}`} href='/'>
+      <Link className={`my-2 border-b-transparent font-bold hover:text-medium-purple border-b-2 hover:border-b-medium-purple transition-opacity duration-300 ${pathname === '/' && 'text-medium-purple'}`} href='/'>
         
         Home
         
       </Link>
 
-      <Link className={`my-2 border-b-transparent hover:text-burnt-sienna border-b-2 hover:border-b-burnt-sienna transition-opacity duration-300 ${pathname === '/booking' && 'border-b-burnt-sienna text-burnt-sienna'}`} href='/booking'>
+      <Link className={`my-2 border-b-transparent hover:text-medium-purple border-b-2 hover:border-b-medium-purple transition-opacity duration-300 ${pathname === '/booking' && 'text-medium-purple'}`} href='/booking'>
         
         Book Crop Session
         
       </Link>
 
-      <Link className={`my-2 border-b-transparent hover:text-burnt-sienna border-b-2 hover:border-b-burnt-sienna transition-opacity duration-300 ${pathname === '/my-bookings' && 'border-b-burnt-sienna text-burnt-sienna'}`} href='/my-bookings'>
+      <Link className={`my-2 border-b-transparent hover:text-medium-purple border-b-2 hover:border-b-medium-purple transition-opacity duration-300 ${pathname === '/my-bookings' && 'text-medium-purple'}`} href='/my-bookings'>
         
         My Bookings
         
       </Link>
 
-      <Link className={`my-2 border-b-transparent hover:text-burnt-sienna border-b-2 hover:border-b-burnt-sienna transition-opacity duration-300 ${pathname === '/admin' && 'border-b-burnt-sienna text-burnt-sienna'}`} href='/admin'>
+      <Link className={`my-2 border-b-transparent hover:text-medium-purple border-b-2 hover:border-b-medium-purple transition-opacity duration-300 ${pathname === '/admin' && 'text-medium-purple'}`} href='/admin'>
         
         Admin
         
       </Link>
 
-      <Link className={`my-2 border-b-transparent hover:text-burnt-sienna border-b-2 hover:border-b-burnt-sienna transition-opacity duration-300 ${pathname === '/pricing' && 'border-b-burnt-sienna text-burnt-sienna'}`} href='/pricing'>
+      <Link className={`my-2 border-b-transparent hover:text-medium-purple border-b-2 hover:border-b-medium-purple transition-opacity duration-300 ${pathname === '/pricing' && 'text-medium-purple'}`} href='/pricing'>
         
         Pricing
         
@@ -56,7 +56,7 @@ export default function Navigation() {
 
         status === 'authenticated' ?
 
-          <Link className={`my-2 border-b-transparent hover:text-burnt-sienna border-b-2 hover:border-b-burnt-sienna transition-opacity duration-300 ${pathname === '/logout' && 'border-b-burnt-sienna text-burnt-sienna'}`} href='/logout' onClick={onLogoutClickHandler}>
+          <Link className={`my-2 border-b-transparent hover:text-medium-purple border-b-2 hover:border-b-medium-purple transition-opacity duration-300 ${pathname === '/logout' && 'text-medium-purple'}`} href='/logout' onClick={onLogoutClickHandler}>
             
             Logout
             
@@ -64,7 +64,7 @@ export default function Navigation() {
 
           :
 
-          <Link className={`my-2 border-b-transparent hover:text-burnt-sienna border-b-2 hover:border-b-burnt-sienna transition-opacity duration-300 ${pathname === '/login' && 'border-b-burnt-sienna text-burnt-sienna'}`} href='/login'>
+          <Link className={`my-2 border-b-transparent hover:text-medium-purple border-b-2 hover:border-b-medium-purple transition-opacity duration-300 ${pathname === '/login' && 'text-medium-purple'}`} href='/login'>
             
             Login
             

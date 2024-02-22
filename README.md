@@ -1,4 +1,3 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
 ## Getting Started
 
@@ -18,19 +17,24 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+Create a .env file with the variables to connect to the desired Vercel Postgres database (POSTGRES_URL, POSTGRES_PRISMA_URL, POSTGRES_URL_NO_SSL, POSTGRES_URL_NON_POOLING, POSTGRES_USER, POSTGRES_HOST, POSTGRES_PASSWORD, POSTGRES_DATABASE, NEXTAUTH_URL, NEXTAUTH_SECRET, GITHUB_ID, GITHUB_SECRET, GOOGLE_ID, GOOGLE_SECRET)
 
-## Learn More
+## Description
 
-To learn more about Next.js, take a look at the following resources:
+The Scrapping-with-sadie-app is application that allows potential customers interested in scrapbooking with my the designer Sadie to be able to book crop date(s) that only an admin can make available through the Admin page which is suppose to be restricted to administrator only (but for testing purposes, the admin route is not restricted).
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+ [Application URL](https://scrapping-with-sadie.vercel.app/)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+## Features
 
-## Deploy on Vercel
+The application requires customers to authenticate themselves in order to book a crop session or see their bookings.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Once the customers logs in:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+  They will have access to the "Book Crop Session" page where they can see the dates available for booking and add them to a form where they add their information (name and email) but also the information of the friends they're booking with. This allow one person to book for the whole group.
+
+  They will also have access to the "My Bookings" page where they can see the bookings that they have made with the possibility to update/delete some of the bookings.
+
+  The "Admin" page is currently accessible to any authenticated user for testing purposes but will be restricted to administrators only who will be able to add dates available for customers to book. They can also delete dates, but only dates that haven't yet been booked by any customers to avoid unhappy customers.
+
+

@@ -90,7 +90,7 @@ export default function Home() {
 
       </section>
 
-      <section className="px-8 py-10 sm:px-10 sm:py-12 md:flex md:items-center md:gap-x-10 bg-medium-purple">
+      <section className="px-8 py-10 sm:px-10 sm:py-12 md:flex md:items-center md:gap-x-10 bg-sandy-brown">
 
         <div className="flex-1 basis-1/2 mb-10 md:mb-0">
 
