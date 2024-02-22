@@ -1,6 +1,7 @@
 'use client';
 
 import { signIn, getProviders } from "next-auth/react";
+import { useEffect, useState } from "react";
 
 // import { authOptions } from "../api/auth/[...nextauth]/route";
 
@@ -14,9 +15,24 @@ type Provider = {
 
 }
 
-export default async function Page() {
+export default function Page() {
 
-  const providers = await getProviders() as unknown as Provider[];
+  const [ providers, setProviders ] = useState( [] as Provider[] );
+
+  useEffect( () => {
+
+    fetchProvider();
+    
+  } );
+
+  async function fetchProvider() {
+
+    const providers = await getProviders() as unknown as Provider[];
+
+    setProviders( providers );
+
+  }
+  
 
   return (
 

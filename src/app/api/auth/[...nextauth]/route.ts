@@ -1,15 +1,6 @@
 import NextAuth, { AuthOptions, NextAuthOptions } from "next-auth";
-import Github from "next-auth/providers/github";
-import Google from "next-auth/providers/google";
-import { checkUser, fetchUserByEmail } from "@/app/lib/data";
-// import { AdapterUser } from "next-auth/adapters";
 
-type User = {
-  id: number;
-  name: string;
-  email: string;
-  image: string;
-}
+import { authOptions } from "./options";
 
 declare module "next-auth" {
   /**
@@ -23,44 +14,6 @@ declare module "next-auth" {
   }
 }
 
-export const authOptions = {
-  providers: [
-    Github({
-      clientId: process.env.GITHUB_ID as string,
-      clientSecret: process.env.GITHUB_SECRET as string,
-    }),
-    Google({
-      clientId: process.env.GOOGLE_ID as string,
-      clientSecret: process.env.GOOGLE_SECRET as string,
-    })
-  ],
-  callbacks: {
-    async signIn( { user } : { user: User } ) {
-
-      await checkUser( user );
-
-      return true;
-    },
-
-    async session( { session } : { session: any } ) {
-
-      const { id, is_admin } = await fetchUserByEmail( session.user.email );
-
-      session.user.id = id;
-      session.user.is_admin = is_admin;
-
-      return session
-
-    },
-  },
-
-  pages: {
-
-    signIn: '/login'
-
-  }
-  
-}
 
 const handler = NextAuth( authOptions as unknown as AuthOptions );
 

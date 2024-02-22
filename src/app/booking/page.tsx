@@ -53,7 +53,7 @@ export default function Page() {
 
     if ( status === 'authenticated' ) fetchBookings();
 
-  }, [] );
+  } );
 
   const decreaseParticipants = () => setParticipants( previousValue => previousValue > 1 ?  previousValue - 1 : 1 );
 
