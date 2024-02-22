@@ -19,7 +19,7 @@ export default function Page() {
 
   const router = useRouter();
 
-  const { data: session, status } = useSession();
+  const { status } = useSession();
 
   const [ bookedDates, setBookedDates ] = useState( [] as Booking[] );
 
@@ -83,6 +83,10 @@ export default function Page() {
 
     event.preventDefault();
 
+    const session = await getSession();
+
+    console.log( 'SESSION ===>', session);
+
     if ( ! pickedDates.length ) return setDateFieldValidation( true );
 
     const target = event.target as HTMLFormElement;
@@ -103,9 +107,9 @@ export default function Page() {
 
       return participantList.map( participant => [ ...participant, id, session?.user?.id ] )
 
-    } )
+    } ).flat()
 
-    console.log( participantListFinal.flat() );    
+    // console.log( participantListFinal.flat() );   
 
     const options = {
 
@@ -113,7 +117,7 @@ export default function Page() {
 
       headers: { 'Content-Type': 'application/json' },
 
-      body: JSON.stringify( participantListFinal.flat() )
+      body: JSON.stringify( participantListFinal )
 
     }
 
@@ -128,6 +132,8 @@ export default function Page() {
         const target = event.target as HTMLFormElement;
 
         target.reset();
+
+        setPickedDates( [] );
 
         fetchBookings();
         // router.push( '/my-bookings' );
